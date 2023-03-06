@@ -1,5 +1,4 @@
-# YoutubeAudio_to_texts
-Convert Youtube's audio to texts
+## Convert Youtube Audio to texts using Whisper
 
 Whisper:
 https://github.com/openai/whisper?ref=mlq-ai
