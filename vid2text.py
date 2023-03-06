@@ -5,6 +5,8 @@ import nltk
 from pydub import AudioSegment
 from pydub.utils import which
 import whisper
+import sys
+sys.path.append('/path/to/ffmpeg')
 
 # Download the NLTK tokenizer models
 nltk.download('punkt')
@@ -13,8 +15,8 @@ nltk.download('punkt')
 model = whisper.load_model("base")
 
 # Define a function to transcribe the audio file and return the text
-def transcribe_audio(audio_path):
-    text = model.transcribe(audio_path)
+def transcribe_audio(audio_path, ffmpeg=None, ffprobe=None):
+    text = model.transcribe(audio_path, ffmpeg=ffmpeg, ffprobe=ffprobe)
     return text['text']
 
 # Define the Streamlit app
@@ -42,6 +44,5 @@ def main():
         except Exception as e:
             st.error(str(e))
 
-# Run the Streamlit app
 if __name__ == '__main__':
     main()
