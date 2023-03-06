@@ -3,7 +3,6 @@ import streamlit as st
 import pytube
 import whisper
 import nltk
-import io
 
 # Download the NLTK tokenizer models
 nltk.download('punkt')
@@ -11,13 +10,9 @@ nltk.download('punkt')
 # Load the WhisPer speech recognition model
 model = whisper.load_model("base")
 
-# Define a function to transcribe the audio stream and return the text
-def transcribe_audio(audio):
-    audio_data = io.BytesIO()
-    for chunk in audio.stream():
-        audio_data.write(chunk)
-    audio_data.seek(0)
-    text = model.transcribe(audio_data.read())
+# Define a function to transcribe the audio file and return the text
+def transcribe_audio(audio_path):
+    text = model.transcribe(audio_path)
     return text['text']
 
 # Define the Streamlit app
@@ -31,12 +26,24 @@ def main():
         try:
             # Download the audio from the YouTube video
             video = pytube.YouTube(video_url)
-            audio = video.streams.filter(only_audio=True, progressive=False).order_by('abr').desc().first()
+            audio = video.streams.filter(only_audio=True).first()
+            audio_path = audio.download()
             
-            # Transcribe the audio stream and show the text
-            text = transcribe_audio(audio)
+            # Transcribe the audio file and show the text
+            text = transcribe_audio(audio_path)
             st.header("Transcription")
             st.write(text)
+            
+            # Create a download button for the text file
+            if st.button("Download Text File"):
+                with open("transcription.txt", "w") as f:
+                    f.write(text)
+                st.download_button(
+                    label="Download Transcription",
+                    data=open("transcription.txt", "rb").read(),
+                    file_name="transcription.txt",
+                    mime="text/plain"
+                )
         except Exception as e:
             st.error(str(e))
 
