@@ -11,7 +11,7 @@ nltk.download('punkt')
 model = whisper.load_model("base")
 
 # Define a function to transcribe the audio file and return the text
-def transcribe_audio(audio_path):
+def transcribe_audio(audio):
     text = model.transcribe(audio)
     return text['text']
 
@@ -28,7 +28,7 @@ def main():
             audio = video.streams.filter(only_audio=True).first()            
             
             # Transcribe the audio file and show the text
-            text = transcribe_audio(audio_path)
+            text = transcribe_audio(audio)
             st.header("Transcription")
             st.write(text)
         except Exception as e:
