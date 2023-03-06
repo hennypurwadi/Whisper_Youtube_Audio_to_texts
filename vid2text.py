@@ -10,9 +10,11 @@ nltk.download('punkt')
 # Load the WhisPer speech recognition model
 model = whisper.load_model("base")
 
-# Define a function to transcribe the audio file and return the text
+# Define a function to transcribe the audio stream and return the text
 def transcribe_audio(audio):
-    text = model.transcribe(audio)
+    audio_data = audio.stream_to_buffer()
+    audio_buffer = audio_data.read()
+    text = model.transcribe(audio_buffer)
     return text['text']
 
 # Define the Streamlit app
@@ -24,10 +26,11 @@ def main():
     
     if video_url:
         try:
+            # Download the audio from the YouTube video
             video = pytube.YouTube(video_url)
-            audio = video.streams.filter(only_audio=True).first()            
+            audio = video.streams.get_highest_quality_audio()
             
-            # Transcribe the audio file and show the text
+            # Transcribe the audio stream and show the text
             text = transcribe_audio(audio)
             st.header("Transcription")
             st.write(text)
