@@ -12,7 +12,7 @@ model = whisper.load_model("base")
 
 # Define a function to transcribe the audio file and return the text
 def transcribe_audio(audio_path):
-    text = model.transcribe(audio)
+    text = model.transcribe(audio_path)
     return text['text']
 
 # Define the Streamlit app
@@ -24,8 +24,10 @@ def main():
     
     if video_url:
         try:
+            # Download the audio from the YouTube video
             video = pytube.YouTube(video_url)
-            audio = video.streams.filter(only_audio=True).first()            
+            audio = video.streams.filter(only_audio=True).first()
+            audio_path = audio.download()
             
             # Transcribe the audio file and show the text
             text = transcribe_audio(audio_path)
