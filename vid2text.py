@@ -12,9 +12,7 @@ model = whisper.load_model("base")
 
 # Define a function to transcribe the audio stream and return the text
 def transcribe_audio(audio):
-    audio_data = audio.stream_to_buffer()
-    audio_buffer = audio_data.read()
-    text = model.transcribe(audio_buffer)
+    text = model.transcribe(audio)
     return text['text']
 
 # Define the Streamlit app
@@ -31,7 +29,7 @@ def main():
             audio = video.streams.filter(only_audio=True, progressive=False).order_by('abr').desc().first()
             
             # Transcribe the audio stream and show the text
-            text = transcribe_audio(audio)
+            text = transcribe_audio(audio.stream())
             st.header("Transcription")
             st.write(text)
         except Exception as e:
