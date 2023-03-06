@@ -1,0 +1,11 @@
+nltk
+streamlit
+scikit-learn
+tensorflow
+pytube
+numpy
+torch
+tqdm
+ffmpeg-python
+whisper 
+git+https://github.com/openai/whisper.git
