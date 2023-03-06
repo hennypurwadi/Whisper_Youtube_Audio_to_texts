@@ -28,7 +28,7 @@ def main():
         try:
             # Download the audio from the YouTube video
             video = pytube.YouTube(video_url)
-            audio = video.streams.get_highest_quality_audio()
+            audio = video.streams.filter(only_audio=True, progressive=False).order_by('abr').desc().first()
             
             # Transcribe the audio stream and show the text
             text = transcribe_audio(audio)
