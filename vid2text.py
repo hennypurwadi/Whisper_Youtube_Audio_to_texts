@@ -16,9 +16,9 @@ nltk.download('punkt')
 model = whisper.load_model("base")
 
 # Define a function to transcribe the audio file and return the text
-def transcribe_audio(audio_data):
+def transcribe_audio(audio_file):
     # Read the audio data using the wave module
-    with wave.open(audio_data, 'rb') as audio_file:
+    with wave.open(audio_file, 'rb') as audio_file:
         audio_params = audio_file.getparams()
         audio_frames = audio_file.readframes(audio_params.nframes)
 
@@ -53,11 +53,10 @@ def main():
                 audio_clip.write_audiofile(audio_file.name, fps=16000, nbytes=2, codec='pcm_s16le')
 
                 # Transcribe the audio file and show the text
-                audio_file.seek(0)
-                audio_data = io.BytesIO(audio_file.read())
-                text = transcribe_audio(audio_data)
-                st.header("Transcription")
-                st.write(text)
+                with open(audio_file.name, 'rb') as f:
+                    text = transcribe_audio(f)
+                    st.header("Transcription")
+                    st.write(text)
         except Exception as e:
             st.error(str(e))
 
