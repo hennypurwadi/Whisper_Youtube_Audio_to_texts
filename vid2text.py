@@ -39,8 +39,14 @@ def main():
         try:
             # Download the video from the YouTube link
             video = pytube.YouTube(video_url)
+            video_stream = video.streams.filter(adaptive=True).first()
             video_data = io.BytesIO()
-            video.stream_to_buffer(video_data)
+            chunk_size = 4096
+            while True:
+                chunk = video_stream.read(chunk_size)
+                if not chunk:
+                    break
+                video_data.write(chunk)
             video_data.seek(0)
 
             # Extract the audio from the video and convert to a NumPy array
