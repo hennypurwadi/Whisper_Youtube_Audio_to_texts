@@ -6,6 +6,7 @@ pytube==12.1.2
 numpy
 torch
 tqdm
+ffmpeg
 ffmpeg-python
 whisper 
 git+https://github.com/openai/whisper.git
