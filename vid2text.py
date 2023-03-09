@@ -6,6 +6,7 @@ import streamlit as st
 import requests
 import whisper
 import nltk
+import tempfile
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 # Download the NLTK tokenizer models
@@ -45,17 +46,18 @@ def main():
                 video_data.write(chunk)
             video_data.seek(0)
 
-            # Extract the audio from the video and convert to a NumPy array
+            # Extract the audio from the video and save to a temporary file
             video_clip = VideoFileClip(video_data)
             audio_clip = video_clip.audio
-            audio_data = io.BytesIO()
-            audio_clip.write_audiofile(audio_data, fps=16000, nbytes=2, codec='pcm_s16le')
-            audio_data.seek(0)
+            with tempfile.NamedTemporaryFile(suffix=".wav") as audio_file:
+                audio_clip.write_audiofile(audio_file.name, fps=16000, nbytes=2, codec='pcm_s16le')
 
-            # Transcribe the audio file and show the text
-            text = transcribe_audio(audio_data)
-            st.header("Transcription")
-            st.write(text)
+                # Transcribe the audio file and show the text
+                audio_file.seek(0)
+                audio_data = io.BytesIO(audio_file.read())
+                text = transcribe_audio(audio_data)
+                st.header("Transcription")
+                st.write(text)
         except Exception as e:
             st.error(str(e))
 
