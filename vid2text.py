@@ -1,5 +1,6 @@
 
 import io
+import numpy as np
 import streamlit as st
 import pytube
 import whisper
@@ -13,7 +14,8 @@ model = whisper.load_model("base")
 
 # Define a function to transcribe the audio file and return the text
 def transcribe_audio(audio_data):
-    txt = model.transcribe(audio_data)
+    audio_array = np.frombuffer(audio_data.read(), dtype=np.int16)
+    txt = model.transcribe(audio_array)
     return txt['text']
 
 # Define the Streamlit app
