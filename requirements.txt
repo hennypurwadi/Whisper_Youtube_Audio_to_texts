@@ -2,7 +2,9 @@ nltk
 streamlit
 scikit-learn
 tensorflow
-pytube==12.1.2
+ffmpeg
+ffmpeg-python
+pytube
 numpy
 torch
 tqdm

@@ -19,9 +19,8 @@ def transcribe_audio(audio_path):
 def main():
     st.title("Convert YouTube Audio to Text Transcription")
 
-    # Prompt the user to enter a YouTube link and a description
+    # Get the YouTube link from the user
     video_url = st.text_input("Enter a YouTube link:")
-    description = st.text_input("Describe the YouTube video (optional):")
 
     if video_url:
         try:
@@ -32,8 +31,6 @@ def main():
 
             # Transcribe the audio file and show the text
             text = transcribe_audio(audio_path)
-            if description:
-                st.write("Description:", description)
             st.header("Transcription")
             st.write(text)
         except Exception as e:
