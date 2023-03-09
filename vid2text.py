@@ -3,7 +3,7 @@ import io
 import wave
 import numpy as np
 import streamlit as st
-import pytube
+import requests
 import whisper
 import nltk
 from moviepy.video.io.VideoFileClip import VideoFileClip
@@ -38,14 +38,10 @@ def main():
     if video_url:
         try:
             # Download the video from the YouTube link
-            video = pytube.YouTube(video_url)
-            video_stream = video.streams.filter(adaptive=True).first()
+            headers = {"Range": "bytes=0-"}
+            response = requests.get(video_url, headers=headers, stream=True)
             video_data = io.BytesIO()
-            chunk_size = 4096
-            while True:
-                chunk = video_stream.read(chunk_size)
-                if not chunk:
-                    break
+            for chunk in response.iter_content(chunk_size=4096):
                 video_data.write(chunk)
             video_data.seek(0)
 
