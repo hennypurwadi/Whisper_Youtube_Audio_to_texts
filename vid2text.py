@@ -1,10 +1,9 @@
 
-import os
+import io
 import streamlit as st
 import pytube
 import whisper
 import nltk
-import tempfile
 
 # Download the NLTK tokenizer models
 nltk.download('punkt')
@@ -13,8 +12,8 @@ nltk.download('punkt')
 model = whisper.load_model("base")
 
 # Define a function to transcribe the audio file and return the text
-def transcribe_audio(audio_path):
-    txt = model.transcribe(audio_path)
+def transcribe_audio(audio_data):
+    txt = model.transcribe(audio_data)
     return txt['text']
 
 # Define the Streamlit app
@@ -26,15 +25,15 @@ def main():
 
     if video_url:
         try:
-            # Download the audio from the YouTube video to a temporary file
+            # Download the audio from the YouTube video to memory
             video = pytube.YouTube(video_url)
             audio = video.streams.filter(only_audio=True).first()
-            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-                audio.stream_to_buffer(temp_file)
-                audio_path = temp_file.name
+            audio_data = io.BytesIO()
+            audio.stream_to_buffer(audio_data)
+            audio_data.seek(0)
 
             # Transcribe the audio file and show the text
-            text = transcribe_audio(audio_path)
+            text = transcribe_audio(audio_data)
             st.header("Transcription")
             st.write(text)
         except Exception as e:
