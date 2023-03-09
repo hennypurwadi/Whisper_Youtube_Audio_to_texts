@@ -1,8 +1,10 @@
 
+import os
 import streamlit as st
 import pytube
 import whisper
 import nltk
+import tempfile
 
 # Download the NLTK tokenizer models
 nltk.download('punkt')
@@ -24,10 +26,12 @@ def main():
 
     if video_url:
         try:
-            # Download the audio from the YouTube video
+            # Download the audio from the YouTube video to a temporary file
             video = pytube.YouTube(video_url)
             audio = video.streams.filter(only_audio=True).first()
-            audio_path = audio.download()
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                audio.stream_to_buffer(temp_file)
+                audio_path = temp_file.name
 
             # Transcribe the audio file and show the text
             text = transcribe_audio(audio_path)
