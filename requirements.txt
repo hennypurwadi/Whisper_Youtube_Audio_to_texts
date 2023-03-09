@@ -12,3 +12,4 @@ pydub
 ffmpeg
 ffmpeg-python
 moviepy
+numba
