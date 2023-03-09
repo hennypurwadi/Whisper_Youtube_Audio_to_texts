@@ -1,6 +1,6 @@
 
 import io
-import wave
+import subprocess
 import numpy as np
 import streamlit as st
 import pytube
@@ -15,13 +15,13 @@ model = whisper.load_model("base")
 
 # Define a function to transcribe the audio file and return the text
 def transcribe_audio(audio_data):
-    # Read the audio data using the wave module
-    with wave.open(audio_data, 'rb') as audio_file:
-        audio_params = audio_file.getparams()
-        audio_frames = audio_file.readframes(audio_params.nframes)
+    # Convert the audio data to a WAV file using ffmpeg
+    ffmpeg_command = ['ffmpeg', '-y', '-i', '-', '-f', 'wav', '-']
+    ffmpeg_process = subprocess.Popen(ffmpeg_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    wav_data, stderr = ffmpeg_process.communicate(audio_data.getbuffer())
 
-    # Convert the audio data to a NumPy array
-    audio_array = np.frombuffer(audio_frames, dtype=np.int16)
+    # Convert the WAV data to a NumPy array
+    audio_array = np.frombuffer(wav_data, dtype=np.int16)
 
     # Transcribe the audio array and return the text
     txt = model.transcribe(audio_array)
