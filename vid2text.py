@@ -7,7 +7,7 @@ import requests
 import whisper
 import nltk
 import tempfile
-from moviepy.video.io.VideoFileClip import VideoFileClip
+from moviepy.video.io.ffmpeg_reader import FFMPEG_VideoReader
 
 # Download the NLTK tokenizer models
 nltk.download('punkt')
@@ -47,10 +47,11 @@ def main():
             video_data.seek(0)
 
             # Extract the audio from the video and save to a temporary file
-            video_clip = VideoFileClip(video_data)
-            audio_clip = video_clip.audio
+            video_reader = FFMPEG_VideoReader(video_data)
+            audio_data = video_reader.audio
             with tempfile.NamedTemporaryFile(suffix=".wav") as audio_file:
-                audio_clip.write_audiofile(audio_file.name, fps=16000, nbytes=2, codec='pcm_s16le')
+                audio_file.write(audio_data.tobytes())
+                audio_file.flush()
 
                 # Transcribe the audio file and show the text
                 with open(audio_file.name, 'rb') as f:
