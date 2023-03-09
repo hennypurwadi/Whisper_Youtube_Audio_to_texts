@@ -7,6 +7,7 @@ import requests
 import whisper
 import nltk
 import tempfile
+from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.video.io.ffmpeg_reader import FFMPEG_VideoReader
 
 # Download the NLTK tokenizer models
@@ -16,9 +17,9 @@ nltk.download('punkt')
 model = whisper.load_model("base")
 
 # Define a function to transcribe the audio file and return the text
-def transcribe_audio(audio_file):
+def transcribe_audio(audio_data):
     # Read the audio data using the wave module
-    with wave.open(audio_file, 'rb') as audio_file:
+    with wave.open(audio_data, 'rb') as audio_file:
         audio_params = audio_file.getparams()
         audio_frames = audio_file.readframes(audio_params.nframes)
 
@@ -46,23 +47,25 @@ def main():
                 video_data.write(chunk)
             video_data.seek(0)
 
-            # Save the video data to a temporary file with a ".mp4" extension
-            with tempfile.NamedTemporaryFile(suffix=".mp4") as video_file:
-                video_file.write(video_data.read())
-                video_file.flush()
+            # Check the duration of the video file
+            video_clip = VideoFileClip(video_data)
+            duration = video_clip.duration
+            if duration is None:
+                raise ValueError("Invalid video file: cannot read duration")
+            st.write(f"Video duration: {duration} seconds")
 
-                # Extract the audio from the video and save to a temporary file
-                video_reader = FFMPEG_VideoReader(filename=video_file.name)
-                audio_data = video_reader.audio
-                with tempfile.NamedTemporaryFile(suffix=".wav") as audio_file:
-                    audio_file.write(audio_data.tobytes())
-                    audio_file.flush()
+            # Extract the audio from the video and save to a temporary file
+            with tempfile.NamedTemporaryFile(suffix=".wav") as audio_file:
+                reader = FFMPEG_VideoReader(filename=video_data, inputdict={}, outputdict={'-f': 'wav'})
+                audio_frames = reader.read_audio_frames()
+                audio_data = np.concatenate(audio_frames)
+                audio_file.writeframes(audio_data.tobytes())
 
-                    # Transcribe the audio file and show the text
-                    with open(audio_file.name, 'rb') as f:
-                        text = transcribe_audio(f)
-                        st.header("Transcription")
-                        st.write(text)
+                # Transcribe the audio file and show the text
+                audio_file.seek(0)
+                text = transcribe_audio(audio_file)
+                st.header("Transcription")
+                st.write(text)
         except Exception as e:
             st.error(str(e))
 
