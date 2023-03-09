@@ -1,5 +1,6 @@
 
 import io
+import wave
 import numpy as np
 import streamlit as st
 import pytube
@@ -14,7 +15,15 @@ model = whisper.load_model("base")
 
 # Define a function to transcribe the audio file and return the text
 def transcribe_audio(audio_data):
-    audio_array = np.frombuffer(audio_data.read(), dtype=np.int16)
+    # Read the audio data using the wave module
+    with wave.open(audio_data, 'rb') as audio_file:
+        audio_params = audio_file.getparams()
+        audio_frames = audio_file.readframes(audio_params.nframes)
+
+    # Convert the audio data to a NumPy array
+    audio_array = np.frombuffer(audio_frames, dtype=np.int16)
+
+    # Transcribe the audio array and return the text
     txt = model.transcribe(audio_array)
     return txt['text']
 
