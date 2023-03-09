@@ -2,8 +2,6 @@ nltk
 streamlit
 scikit-learn
 tensorflow
-ffmpeg
-ffmpeg-python
 pytube
 numpy
 torch
