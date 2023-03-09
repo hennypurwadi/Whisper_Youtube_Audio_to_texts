@@ -46,18 +46,23 @@ def main():
                 video_data.write(chunk)
             video_data.seek(0)
 
-            # Extract the audio from the video and save to a temporary file
-            video_reader = FFMPEG_VideoReader(video_data)
-            audio_data = video_reader.audio
-            with tempfile.NamedTemporaryFile(suffix=".wav") as audio_file:
-                audio_file.write(audio_data.tobytes())
-                audio_file.flush()
+            # Save the video data to a temporary file with a ".mp4" extension
+            with tempfile.NamedTemporaryFile(suffix=".mp4") as video_file:
+                video_file.write(video_data.read())
+                video_file.flush()
 
-                # Transcribe the audio file and show the text
-                with open(audio_file.name, 'rb') as f:
-                    text = transcribe_audio(f)
-                    st.header("Transcription")
-                    st.write(text)
+                # Extract the audio from the video and save to a temporary file
+                video_reader = FFMPEG_VideoReader(filename=video_file.name)
+                audio_data = video_reader.audio
+                with tempfile.NamedTemporaryFile(suffix=".wav") as audio_file:
+                    audio_file.write(audio_data.tobytes())
+                    audio_file.flush()
+
+                    # Transcribe the audio file and show the text
+                    with open(audio_file.name, 'rb') as f:
+                        text = transcribe_audio(f)
+                        st.header("Transcription")
+                        st.write(text)
         except Exception as e:
             st.error(str(e))
 
